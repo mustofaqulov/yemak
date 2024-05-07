@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: var(--ff-averta);
+
+  ::-webkit-scrollbar {
+    display: none;
+  }
+  background-color: #12282f;
+}
+
+img {
+  display: block;
+}
+
+a {
+  color: inherit;
+  outline: none;
+}
+
+input,
+button,
+textarea {
+  font-family: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+:root {
+  /* ========== Colors ========== */
+  --bg-body: #f7f7f7;
+  --bg-section: #814949;
+  --gray-bg: #f0f0f0;
+  --btn-primary: #edc843;
+  --btn-secondary: #15cc69;
+  --clr-primary: #12282f;
+  --clr-gray-dark: #626262;
+  --clr-gray: #5a696e;
+  --clr-white: #fff;
+  --clr-yellow: #edc843;
+  --clr-green: #15cc69;
+  --clr-gray-lt: #b0b7ba;
+
+  /* ==========Font========== */
+
+  --ff-averta: 'Averta CY', sans-serif;
+
+  /* ==========Size========== */
+
+  --heading-lg: 2rem;
+  --paragraph-xl: 1.125rem;
+  --paragraph-md: 1rem;
+  --paragraph-lg: 0.938rem;
+  --paragraph-sm: 0.75rem;
+
+  /* ==========Weight========== */
+  --fw-bold: 700;
+  --fw-semi-bold: 600;
+  --fw-medium: 400;
+}
