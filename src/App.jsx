@@ -1,12 +1,16 @@
+import { useState } from 'react';
 import Login from './components/Modals/Login/Login';
 
 import './styles/style.scss';
 
 function App() {
+  const [open, setOpen] = useState(false);
   return (
     <>
-      <Login />
-      <h1>HEllo</h1>
+      <button onClick={() => setOpen(!open)} className="p-8">
+        open
+      </button>
+      <Login isOpen={open} setIsOpen={() => setOpen()} />
     </>
   );
 }
