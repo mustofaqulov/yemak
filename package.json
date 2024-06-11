@@ -13,12 +13,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@svgr/webpack": "^8.1.0",
     "classnames": "^2.5.1",
     "react": "^18.2.0",
     "react-css-modules": "^4.7.11",
     "react-dom": "^18.2.0",
     "react-input-mask": "^2.0.4",
+    "react-otp-input": "^3.1.1",
     "sass": "^1.76.0",
     "vite-plugin-svgr": "^4.2.0"
   },
