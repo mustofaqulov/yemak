@@ -1,6 +1,8 @@
 import InputMask from 'react-input-mask';
 import { useState, useEffect, useRef } from 'react';
-// import { Close } from '../../../assets/icons/close.svg?react';
+import Button from '../../Button/Button';
+import Edit from '../../../assets/icons/edit.svg';
+import Sign from '../../../assets/icons/sign-in.svg';
 
 import classNames from 'classnames';
 
@@ -9,20 +11,14 @@ import './Login.scss';
 export default function Login({ isOpen, setIsOpen }) {
   const [phone, setPhone] = useState('');
   const [error, setError] = useState(false);
-  const [inputValues, setInputValues] = useState(['', '', '', '', '', '']);
+  const [inputValues, setInputValues] = useState(['', '', '', '']);
   const inputRefs = inputValues.map(() => useRef(null));
-  const [timer, setTimer] = useState('');
+  const [timer, setTimer] = useState(5);
 
   // useEffect(() => {
   //   const fetchData = async () => {
   //     try {
   //       const response = await fetch(
-  //         `https://api.yemak-test.uz/user/auth?phone_number=${phone
-  //           .slice(phone.length - 12)
-  //           .split(' ')
-  //           .join('')}`,
-  //       );
-  //       console.log(
   //         `https://api.yemak-test.uz/user/auth?phone_number=${phone
   //           .slice(phone.length - 12)
   //           .split(' ')
@@ -45,20 +41,21 @@ export default function Login({ isOpen, setIsOpen }) {
       inputRefs[0].current.focus();
     }
   });
-
-  let t = 59;
-  function time() {
-    !error &&
-      setInterval(() => {
-        t -= 1;
-        setTimer(t);
+  useEffect(() => {
+    let interval;
+    let clear = () => {
+      clearInterval(interval);
+      setTimer(59);
+    };
+    if (error) {
+      interval = setInterval(() => {
+        setTimer((prevTimer) => (prevTimer > 0 ? prevTimer - 1 : 0));
       }, 1000);
-  }
-
-  console.log(timer);
+    }
+    return () => clear();
+  }, [error]);
 
   function handleClickBtn() {
-    error && clearInterval(time);
     setError(!phone);
   }
 
@@ -86,6 +83,8 @@ export default function Login({ isOpen, setIsOpen }) {
       }, 100);
     }
   }
+
+  let arr = [1, 2, 3, 4];
 
   function handleBackspace(event, index) {
     if (
@@ -118,20 +117,7 @@ export default function Login({ isOpen, setIsOpen }) {
             <div className="flex items-center gap-2 mb-8">
               <p>{phone}</p>
               <div className="cursor-pointer" onClick={() => handleClickBtn()}>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 16 16"
-                  fill="none"
-                >
-                  <path
-                    d="M2 14H14M9.18961 3.54114C9.18961 3.54114 9.18961 4.63089 10.2794 5.72064C11.3691 6.81039 12.4589 6.81039 12.4589 6.81039M4.87975 11.992L7.16823 11.6651C7.49833 11.618 7.80424 11.465 8.04003 11.2292L13.5486 5.72064C14.1505 5.11879 14.1505 4.14299 13.5486 3.54114L12.4589 2.45139C11.857 1.84954 10.8812 1.84954 10.2794 2.45139L4.77078 7.95997C4.53499 8.19576 4.38203 8.50167 4.33488 8.83177L4.00795 11.1202C3.9353 11.6288 4.3712 12.0647 4.87975 11.992Z"
-                    stroke="#5A696E"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                  />
-                </svg>
+                <Edit />
               </div>
             </div>
           ) : null}
@@ -142,17 +128,25 @@ export default function Login({ isOpen, setIsOpen }) {
               {error ? 'Tasdiqlash kodi' : 'Telefon raqami'}
             </label>
             {error ? (
-              <div className="flex space-x-2 justify-between mt-4">
+              <div className="flex space-x-2 justify-center gap-4 mt-4">
                 {inputValues.map((value, ind) => (
                   <input
                     key={ind}
                     ref={inputRefs[ind]}
-                    type="text"
+                    type="number"
                     maxLength="1"
                     value={value}
                     onChange={(e) => handleChange(e, ind)}
                     onKeyDown={(e) => handleBackspace(e, ind)}
-                    className="w-14 h-[60px] border-2 border-transparent bg-[var(--bg-body)] text-center text-lg rounded-lg focus:border-[var(--clr-yellow)] focus:outline-none transition-colors focus:bg-transparent"
+                    className={classNames(
+                      `w-14 h-[60px] appearance-none border-2 border-transparent bg-[var(--bg-body)] text-center text-lg rounded-lg focus:border-[var(--clr-yellow)] focus:outline-none transition-colors focus:bg-transparent ${
+                        value !== ''
+                          ? arr[ind] != value
+                            ? 'focus:border-[red] border-[red]'
+                            : 'focus:border-[var(--clr-yellow)] border-transparent'
+                          : 'focus:border-[var(--clr-yellow)]'
+                      }`,
+                    )}
                   />
                 ))}
               </div>
@@ -201,18 +195,19 @@ export default function Login({ isOpen, setIsOpen }) {
               </p>
             ) : (
               <div className="text-[var(--clr-green)]">
-                <span>00</span>:<span>{timer}</span>
+                <span>00</span>:<span>{timer > 9 ? timer : `0${timer}`}</span>
               </div>
             )}
-            <button
+
+            <Button
+              title="Davom etish"
+              btnClass="secondary"
+              phone={phone}
               onClick={() => handleButtonClick()}
-              disabled={phone.trim().length !== 17}
-              className={classNames(
-                `py-3.5 w-full text-[var(--clr-gray-lt)] rounded-xl transition-all font-semibold ${btnDis}`,
-              )}
-            >
-              Davom etish
-            </button>
+              icon={<Sign />}
+              py={'20px'}
+              px={'20px'}
+            />
           </div>
         </div>
       </div>
