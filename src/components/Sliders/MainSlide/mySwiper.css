@@ -2,7 +2,8 @@
   width: 100%;
   display: flex;
   margin: 0 auto;
-  background: linear-gradient(125deg, #f7f7f7 -21.01%, rgba(247, 247, 247, 0) 100%);
+  background: linear-gradient(90deg, #f7f7f7 -21.01%, rgba(247, 247, 247, 0) 100%), 90deg,
+    #f7f7f7 -21.01%, rgba(247, 247, 247, 0) 100%;
 }
 
 .swiper-slide {
