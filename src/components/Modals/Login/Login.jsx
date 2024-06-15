@@ -10,10 +10,13 @@ import './Login.scss';
 
 export default function Login({ isOpen, setIsOpen }) {
   const [phone, setPhone] = useState('');
+  // const [userData, setUserData] = useState(null);
+  // const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [inputValues, setInputValues] = useState(['', '', '', '']);
   const inputRefs = inputValues.map(() => useRef(null));
   const [timer, setTimer] = useState(5);
+  const [allInputsFilled, setAllInputsFilled] = useState(false);
 
   // useEffect(() => {
   //   const fetchData = async () => {
@@ -30,17 +33,17 @@ export default function Login({ isOpen, setIsOpen }) {
   //       console.error('Error karochchi:', error);
   //     }
   //   };
-  //   if (phone.trim().length == 17) {
+  //   if (phone.trim().length === 17) {
   //     fetchData();
-  //     console.log(phone.trim().length);
   //   }
   // }, [phone]);
 
   useEffect(() => {
-    if (inputRefs[0].current && inputRefs[0].current.value == '') {
+    if (inputRefs[0].current && inputRefs[0].current.value === '') {
       inputRefs[0].current.focus();
     }
   });
+
   useEffect(() => {
     let interval;
     let clear = () => {
@@ -55,6 +58,10 @@ export default function Login({ isOpen, setIsOpen }) {
     return () => clear();
   }, [error]);
 
+  useEffect(() => {
+    setAllInputsFilled(inputValues.every((value) => value !== ''));
+  }, [inputValues]);
+
   function handleClickBtn() {
     setError(!phone);
   }
@@ -62,15 +69,6 @@ export default function Login({ isOpen, setIsOpen }) {
   function handleButtonClick() {
     setError(!error);
   }
-
-  // function message() {
-  //   return userData && userData.ok;
-  // }
-
-  const btnDis =
-    phone.trim().length !== 17
-      ? 'bg-[var(--gray-bg)] text-[var(--clr-gray-lt)]'
-      : 'bg-[var(--btn-primary)] text-[var(--clr-primary)] transition-all font-semibold';
 
   function handleChange(event, index) {
     const newInputValues = [...inputValues];
@@ -80,11 +78,9 @@ export default function Login({ isOpen, setIsOpen }) {
     if (event.target.value && index < inputRefs.length - 1) {
       setTimeout(() => {
         inputRefs[index + 1].current.focus();
-      }, 100);
+      }, 10);
     }
   }
-
-  let arr = [1, 2, 3, 4];
 
   function handleBackspace(event, index) {
     if (
@@ -133,19 +129,14 @@ export default function Login({ isOpen, setIsOpen }) {
                   <input
                     key={ind}
                     ref={inputRefs[ind]}
-                    type="number"
+                    type="text"
                     maxLength="1"
                     value={value}
                     onChange={(e) => handleChange(e, ind)}
                     onKeyDown={(e) => handleBackspace(e, ind)}
                     className={classNames(
-                      `w-14 h-[60px] appearance-none border-2 border-transparent bg-[var(--bg-body)] text-center text-lg rounded-lg focus:border-[var(--clr-yellow)] focus:outline-none transition-colors focus:bg-transparent ${
-                        value !== ''
-                          ? arr[ind] != value
-                            ? 'focus:border-[red] border-[red]'
-                            : 'focus:border-[var(--clr-yellow)] border-transparent'
-                          : 'focus:border-[var(--clr-yellow)]'
-                      }`,
+                      `w-14 h-[60px] appearance-none border-2 border-transparent bg-[var(--bg-body)] text-center text-lg rounded-lg focus:border-[var(--clr-yellow)] focus:outline-none transition-colors focus:bg-transparent focus:border-[var(--clr-yellow)] border-transparent' 'focus:border-[var(--clr-yellow)]
+                      `,
                     )}
                   />
                 ))}
@@ -201,12 +192,13 @@ export default function Login({ isOpen, setIsOpen }) {
 
             <Button
               title="Davom etish"
-              btnClass="secondary"
+              btnClass="primary"
               phone={phone}
               onClick={() => handleButtonClick()}
-              icon={<Sign />}
-              py={'20px'}
-              px={'20px'}
+              full={true}
+              pad={'py-3'}
+              error={error}
+              allInputsFilled={allInputsFilled}
             />
           </div>
         </div>

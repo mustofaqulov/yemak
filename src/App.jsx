@@ -1,16 +1,13 @@
-import { useState } from 'react';
-import Login from './components/Modals/Login/Login';
+import Header from './components/Header/Header';
+import MainSlide from './components/Sliders/MainSlide/MainSlide';
 
 import './styles/style.scss';
 
 function App() {
-  const [open, setOpen] = useState(false);
   return (
     <>
-      <button onClick={() => setOpen(!open)} className="p-8">
-        open
-      </button>
-      <Login isOpen={open} setIsOpen={() => setOpen()} />
+      <Header />
+      <MainSlide />
     </>
   );
 }
