@@ -1,0 +1,26 @@
+.mySwiper {
+  width: 100%;
+  display: flex;
+  margin: 0 auto;
+  background: linear-gradient(125deg, #f7f7f7 -21.01%, rgba(247, 247, 247, 0) 100%);
+}
+
+.swiper-slide {
+  flex-grow: 1;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  img {
+    width: 344px;
+    height: 160px;
+    border-radius: 13px;
+    cursor: pointer;
+  }
+}
+
+.swiper-image {
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+  object-fit: cover;
+}
