@@ -1,13 +1,11 @@
-import Header from './components/Header/Header';
-import MainSlide from './components/Sliders/MainSlide/MainSlide';
+import Layout from './layout/Layout';
 
 import './styles/style.scss';
 
 function App() {
   return (
     <>
-      <Header />
-      <MainSlide />
+      <Layout />
     </>
   );
 }

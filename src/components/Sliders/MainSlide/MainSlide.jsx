@@ -15,14 +15,22 @@ import Banner5 from '../../../assets/images/Banner-5.jpg';
 export default function MainSlide() {
   let bannerImg = [Banner1, Banner2, Banner3, Banner4, Banner5];
   return (
-    <Swiper slidesPerView={4} loop={true} navigation={true} className="mySwiper">
-      {bannerImg.map((img, ind) => {
-        return (
-          <SwiperSlide key={ind}>
-            <img src={img} />
-          </SwiperSlide>
-        );
-      })}
+    <Swiper
+      centeredSlides={true}
+      slidesPerView={4}
+      loop={true}
+      navigation={true}
+      className="mySwiper"
+    >
+      <div className="sliderm">
+        {bannerImg.map((img, ind) => {
+          return (
+            <SwiperSlide key={ind}>
+              <img src={img} />
+            </SwiperSlide>
+          );
+        })}
+      </div>
     </Swiper>
   );
 }
