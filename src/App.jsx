@@ -1,11 +1,14 @@
 import Layout from './layout/Layout';
+import { Router } from './Router/Router';
 
 import './styles/style.scss';
 
 function App() {
   return (
     <>
-      <Layout />
+      <Layout>
+        <Router />
+      </Layout>
     </>
   );
 }
