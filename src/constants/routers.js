@@ -1,5 +1,5 @@
 export const routePaths = {
-  HOME: '/home',
+  HOME: '/',
   LOGIN: '/login',
   NOT_FOUND: '/*',
 };
