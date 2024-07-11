@@ -4,7 +4,7 @@ import Footer from '../components/Footer/Footer';
 export default function Layout({ children }) {
   return (
     <>
-      <Header />
+      <Header count2={()=>{}}/>
       <main>{children}</main>
       <Footer />
     </>

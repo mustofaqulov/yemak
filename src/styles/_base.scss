@@ -5,7 +5,7 @@
 body {
   font-family: var(--ff-averta);
 
-  ::-webkit-scrollbar {
+  &::-webkit-scrollbar {
     display: none;
   }
   user-select: none;
@@ -52,6 +52,7 @@ button {
   --clr-yellow: #edc843;
   --clr-green: #15cc69;
   --clr-gray-lt: #b0b7ba;
+  --bg-opacity: rgba(13, 13, 13, 0.88);
 
   /* ==========Font========== */
 

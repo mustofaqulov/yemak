@@ -5,11 +5,9 @@ import './styles/style.scss';
 
 function App() {
   return (
-    <>
-      <Layout>
-        <Router />
-      </Layout>
-    </>
+    <Layout>
+      <Router />
+    </Layout>
   );
 }
 

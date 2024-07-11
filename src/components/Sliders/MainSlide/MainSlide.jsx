@@ -3,15 +3,15 @@ import './mySwiper.css';
 import 'swiper/css';
 import { Swiper, SwiperSlide } from 'swiper/react';
 
-// images
 import Banner1 from '../../../assets/images/Banner-1.jpg';
 import Banner2 from '../../../assets/images/Banner-2.jpg';
 import Banner3 from '../../../assets/images/Banner-3.jpg';
 import Banner4 from '../../../assets/images/Banner-4.jpg';
 import Banner5 from '../../../assets/images/Banner-5.jpg';
+import Banner6 from '../../../assets/images/Banner-6.jpg';
 
 export default function MainSlide() {
-  let bannerImg = [Banner1, Banner2, Banner3, Banner4, Banner5];
+  let bannerImg = [Banner1, Banner2, Banner3, Banner4, Banner5, Banner6];
   return (
     <div className="relative w-full">
       <Swiper
@@ -19,6 +19,7 @@ export default function MainSlide() {
         slidesPerView={4}
         loop={true}
         navigation={true}
+        spaceBetween={'20px'}
         pagination={{ clickable: true }}
         className="mySwiper"
       >
