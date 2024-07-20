@@ -15,7 +15,10 @@ function Button({
   disBtn,
 }) {
   const btnDis =
-    disBtn || (phone && !error && phone.trim().length !== 17) || (error && !allInputsFilled)
+    disBtn ||
+    (phone && !error && phone.trim().length !== 17) ||
+    (error && !allInputsFilled) ||
+    isDisabled
       ? 'bg-[var(--gray-bg)] text-[var(--clr-gray-lt)]'
       : 'bg-[var(--btn-primary)] text-[var(--clr-primary)] transition-all font-semibold';
 

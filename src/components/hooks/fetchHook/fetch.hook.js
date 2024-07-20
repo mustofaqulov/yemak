@@ -7,7 +7,7 @@ export function useFetch(url, options = {}) {
   const [data, setData] = useState(null);
 
   useEffect(() => {
-    if (!url) return ''; // Exit early if no URL is provided
+    if (!url) return '';
 
     fetchData(url, options)
       .then((data) => {
@@ -18,7 +18,7 @@ export function useFetch(url, options = {}) {
         setError(fetchError);
         setLoading(false);
       });
-  }, [url, options]); // Dependency array includes options
+  }, [url, options]);
 
   return { error, loading, data };
 }

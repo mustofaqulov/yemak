@@ -5,7 +5,7 @@ export default function Layout({ children }) {
   return (
     <>
       <Header count2={()=>{}}/>
-      <main>{children}</main>
+        <main>{children}</main>
       <Footer />
     </>
   );

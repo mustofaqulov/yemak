@@ -98,7 +98,7 @@ function Header({ count2 }) {
             Savatcha
           </div>
           {createPortal(
-            <Login isOpen={login} onClick={(e) => handleLoginClick(e)} />,
+            <Login isOpen={login} setLogin={setLogin} onClick={(e) => handleLoginClick(e)} />,
             document.body,
           )}
           <Button

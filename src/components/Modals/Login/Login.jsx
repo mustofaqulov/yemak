@@ -1,39 +1,28 @@
 import React, { useState, useEffect, useRef } from 'react';
-import InputMask from 'react-input-mask';
-import Button from '../../Button/Button';
 import EditIcon from '../../../assets/icons/edit.svg';
+
+// Komponentlar
+import { Header } from './components/Header/Header';
+import { Footer } from './components/Footer/Footer';
+import { verifyCode } from '../../../services/VerifyCode';
+import { sendVerificationCode } from '../../../services/SendCode';
+
+// Kutubxona
+import InputMask from 'react-input-mask';
 import classNames from 'classnames';
+import { useMutation } from '@tanstack/react-query';
+
+// CSS
 import './Login.scss';
 
-const Login = ({ isOpen, onClick }) => {
+const Login = ({ isOpen, onClick, setLogin }) => {
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [step, setStep] = useState('enterPhone'); // enterPhone yoki enterCode
+  const [step, setStep] = useState('enterPhone'); // 'enterPhone' yoki 'enterCode'
   const [code, setCode] = useState(['', '', '', '']);
   const inputRefs = useRef([...Array(4)].map(() => React.createRef()));
   const [timer, setTimer] = useState(59);
   const [isCodeValid, setIsCodeValid] = useState(false);
-  const [isDisabled, setIsDisabled] = useState(false);
-
-  useEffect(() => {
-    if (step === 'enterCode' && timer > 0) {
-      const intervalId = setInterval(() => {
-        setTimer((prev) => prev - 1);
-      }, 1000);
-      return () => clearInterval(intervalId);
-    }
-    setTimer(59);
-  }, [step, timer]);
-
-  useEffect(() => {
-    const validCode = [1, 2, 3, 4];
-    setIsCodeValid(code.every((num, idx) => parseInt(num) === validCode[idx]));
-  }, [code]);
-
-  useEffect(() => {
-    if (inputRefs.current[0].current && step === 'enterCode') {
-      inputRefs.current[0].current.focus();
-    }
-  }, [step]);
+  const [token, setToken] = useState('');
 
   const handlePhoneChange = (e) => {
     setPhoneNumber(e.target.value);
@@ -55,27 +44,58 @@ const Login = ({ isOpen, onClick }) => {
     }
   };
 
-  const sendVerificationCode = async () => {
-    try {
-      setIsDisabled(true);
-      const formattedPhone = phoneNumber.replace(/\s+/g, '').slice(-9);
-      const response = await fetch(
-        `https://api.yemak-test.uz/user/auth?phone_number=${formattedPhone}`,
-      );
-      if (!response.ok) throw new Error('Kod yuborishda xatolik');
+  const sendVerificationCodeMutation = useMutation({
+    mutationFn: sendVerificationCode,
+    onSuccess: (data) => {
+      setToken(data);
       setStep('enterCode');
-    } catch (error) {
-      console.error(error);
-    }
-  };
+    },
+    onError: () => {
+      console.log('Error karoche');
+    },
+  });
+
+  const verifyCodeMutation = useMutation({
+    mutationFn: verifyCode,
+    onSuccess: (data) => {
+      console.log(data.ok);
+      setIsCodeValid(data.ok);
+    },
+    onError: (data) => {
+      console.log('Error karoche', data);
+      setIsCodeValid(false);
+    },
+  });
 
   const handleButtonClick = () => {
     if (step === 'enterPhone') {
-      sendVerificationCode();
-    } else {
-      console.log('Tasdiqlash kodi:', code.join(''));
+      sendVerificationCodeMutation.mutate(phoneNumber);
+    } else if (step === 'enterCode') {
+      setLogin(!isCodeValid);
+      verifyCodeMutation.mutate({ code: code.join(''), token });
     }
   };
+
+  const editFn = () => {
+    setStep('enterPhone');
+    setCode(['', '', '', '']);
+  };
+
+  useEffect(() => {
+    if (step === 'enterCode' && timer > 0) {
+      const intervalId = setInterval(() => {
+        setTimer((prev) => prev - 1);
+      }, 1000);
+      return () => clearInterval(intervalId);
+    }
+    setTimer(59);
+  }, [step, timer]);
+
+  useEffect(() => {
+    if (inputRefs.current[0].current && step === 'enterCode') {
+      inputRefs.current[0].current.focus();
+    }
+  }, [step]);
 
   return (
     <div
@@ -91,12 +111,7 @@ const Login = ({ isOpen, onClick }) => {
           { 'scale-100': isOpen, 'scale-0': !isOpen },
         )}
       >
-        <div className="flex items-center justify-between w-full p-5 border-b border-solid border-[var(--gray-bg)]">
-          <h2 className="font-bold text-[var(--clr-primary)] text-lg">
-            {step === 'enterCode' ? 'Tasdiqlash' : 'Kirish'}
-          </h2>
-          <div className="cursor-pointer" onClick={onClick}></div>
-        </div>
+        <Header step={step} onClick={onClick} />
         <div className="p-5">
           <p className="text-sm text-[var(--clr-gray)] font-normal mb-4">
             {step === 'enterCode'
@@ -106,7 +121,7 @@ const Login = ({ isOpen, onClick }) => {
           {step === 'enterCode' && (
             <div className="flex items-center gap-2 mb-8">
               <p>{phoneNumber}</p>
-              <div className="cursor-pointer" onClick={() => setStep('enterPhone')}>
+              <div className="cursor-pointer" onClick={() => editFn()}>
                 <EditIcon />
               </div>
             </div>
@@ -133,7 +148,7 @@ const Login = ({ isOpen, onClick }) => {
                     onKeyDown={(e) => handleBackspace(e, idx)}
                     className={classNames(
                       'w-14 h-[60px] appearance-none border-2 bg-[var(--bg-body)] text-center text-lg rounded-lg focus:border-[var(--clr-yellow)] focus:outline-none transition-colors focus:bg-transparent',
-                      { 'border-[var(--error)]': code.join('') !== '1234' && code[3] !== '' },
+                      { 'border-[var(--error)]': step !== 'enterCode' && !isCodeValid },
                     )}
                   />
                 ))}
@@ -157,33 +172,12 @@ const Login = ({ isOpen, onClick }) => {
               </InputMask>
             )}
           </div>
-          <div className="text-center flex flex-col gap-4">
-            {step !== 'enterCode' ? (
-              <p className="text-sm">
-                Davom etish orqali siz
-                <span className="text-[var(--clr-green)]">
-                  <a href="#"> Foydalanish qoidalari </a>
-                </span>
-                va
-                <span className="text-[var(--clr-green)]">
-                  <a href="#"> Maxfiylik siyosati </a>
-                </span>
-                ga rozilik bildirasiz
-              </p>
-            ) : (
-              <div className="text-[var(--clr-green)]">
-                <span>00</span>:<span>{timer > 9 ? timer : `0${timer}`}</span>
-              </div>
-            )}
-            <Button
-              title={step === 'enterPhone' ? 'Davom etish' : 'Tasdiqlash'}
-              btnClass="primary"
-              onClick={handleButtonClick}
-              full={true}
-              pad="py-3"
-              isDisabled={isDisabled}
-            />
-          </div>
+          <Footer
+            step={step}
+            handleButtonClick={handleButtonClick}
+            timer={timer}
+            isDisabled={sendVerificationCodeMutation.isPending || verifyCodeMutation.isPending}
+          />
         </div>
       </div>
     </div>
