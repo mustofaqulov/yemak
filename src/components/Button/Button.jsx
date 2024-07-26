@@ -9,20 +9,26 @@ function Button({
   addStyle,
   pad,
   full,
+  isDisabled,
   error,
   allInputsFilled,
+  disBtn,
 }) {
   const btnDis =
-    (phone && !error && phone.trim().length !== 17) || (error && !allInputsFilled)
+    disBtn ||
+    (phone && !error && phone.trim().length !== 17) ||
+    (error && !allInputsFilled) ||
+    isDisabled
       ? 'bg-[var(--gray-bg)] text-[var(--clr-gray-lt)]'
       : 'bg-[var(--btn-primary)] text-[var(--clr-primary)] transition-all font-semibold';
 
-  const disabled = (phone && !error && phone.trim().length !== 17) || (error && !allInputsFilled);
+  const disabled =
+    (phone && !error && phone.trim().length !== 17) || (error && !allInputsFilled) || disBtn;
 
   const buttons = classNames(
     pad,
-    addStyle,
     `flex items-center justify-center gap-[2px] rounded-xl`,
+    addStyle,
     {
       [`${
         full ? 'w-full' : 'w-max'

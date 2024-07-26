@@ -56,7 +56,7 @@ export default function Footer() {
         <div className="flex items-center gap-2">{icon.map((item) => item)}</div>
         <div className="flex gap-6">
           {contact.map((item, ind) => (
-            <p className="flex items-center gap-1 ">
+            <p ket={ind} className="flex items-center gap-1 ">
               {item.icon}
               {item.title}
             </p>
