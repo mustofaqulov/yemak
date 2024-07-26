@@ -1,11 +1,11 @@
 import MainSlide from '../../components/Sliders/MainSlide/MainSlide';
-import RestoranCard from '../../components/Card/RestoranCard/RestoranCard';
+import { Restaurant } from '../../components/Restaurant/Restaurant';
 
 export default function HomePage() {
   return (
     <div>
       <MainSlide />
-      <RestoranCard />
+      <Restaurant />
     </div>
   );
 }

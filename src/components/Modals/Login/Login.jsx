@@ -1,37 +1,56 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useReducer } from 'react';
 import EditIcon from '../../../assets/icons/edit.svg';
-
-// Komponentlar
 import { Header } from './components/Header/Header';
 import { Footer } from './components/Footer/Footer';
 import { verifyCode } from '../../../services/VerifyCode';
 import { sendVerificationCode } from '../../../services/SendCode';
-
-// Kutubxona
 import InputMask from 'react-input-mask';
 import classNames from 'classnames';
 import { useMutation } from '@tanstack/react-query';
-
-// CSS
 import './Login.scss';
 
+const initialState = {
+  phoneNumber: '',
+  step: 'enterPhone',
+  code: ['', '', '', ''],
+  timer: 59,
+  isCodeValid: true, // Begin with true to avoid initial red border
+  token: '',
+};
+
+function reducer(state, action) {
+  switch (action.type) {
+    case 'SET_PHONE_NUMBER':
+      return { ...state, phoneNumber: action.payload };
+    case 'SET_STEP':
+      return { ...state, step: action.payload };
+    case 'SET_CODE':
+      const newCode = [...state.code];
+      newCode[action.payload.index] = action.payload.value;
+      return { ...state, code: newCode };
+    case 'SET_TIMER':
+      return { ...state, timer: action.payload };
+    case 'SET_IS_CODE_VALID':
+      return { ...state, isCodeValid: action.payload };
+    case 'SET_TOKEN':
+      return { ...state, token: action.payload };
+    case 'RESET_CODE':
+      return { ...state, code: ['', '', '', ''] };
+    default:
+      return state;
+  }
+}
+
 const Login = ({ isOpen, onClick, setLogin }) => {
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [step, setStep] = useState('enterPhone'); // 'enterPhone' yoki 'enterCode'
-  const [code, setCode] = useState(['', '', '', '']);
+  const [state, dispatch] = useReducer(reducer, initialState);
   const inputRefs = useRef([...Array(4)].map(() => React.createRef()));
-  const [timer, setTimer] = useState(59);
-  const [isCodeValid, setIsCodeValid] = useState(false);
-  const [token, setToken] = useState('');
 
   const handlePhoneChange = (e) => {
-    setPhoneNumber(e.target.value);
+    dispatch({ type: 'SET_PHONE_NUMBER', payload: e.target.value });
   };
 
   const handleCodeChange = (e, idx) => {
-    const newCode = [...code];
-    newCode[idx] = e.target.value;
-    setCode(newCode);
+    dispatch({ type: 'SET_CODE', payload: { value: e.target.value, index: idx } });
 
     if (e.target.value && idx < inputRefs.current.length - 1) {
       inputRefs.current[idx + 1].current.focus();
@@ -47,55 +66,55 @@ const Login = ({ isOpen, onClick, setLogin }) => {
   const sendVerificationCodeMutation = useMutation({
     mutationFn: sendVerificationCode,
     onSuccess: (data) => {
-      setToken(data);
-      setStep('enterCode');
+      dispatch({ type: 'SET_TOKEN', payload: data });
+      dispatch({ type: 'SET_STEP', payload: 'enterCode' });
     },
-    onError: () => {
-      console.log('Error karoche');
-    },
+    onError: () => console.log('Error sending verification code'),
   });
 
   const verifyCodeMutation = useMutation({
     mutationFn: verifyCode,
     onSuccess: (data) => {
-      console.log(data.ok);
-      setIsCodeValid(data.ok);
+      dispatch({ type: 'SET_IS_CODE_VALID', payload: data.ok });
+      setLogin(!data.ok);
+      dispatch({ type: 'RESET_CODE' });
+      dispatch({ type: 'SET_STEP', payload: 'enterPhone' });
+      state.phoneNumber = '';
     },
     onError: (data) => {
-      console.log('Error karoche', data);
-      setIsCodeValid(false);
+      console.log('Error verifying code', data);
+      dispatch({ type: 'SET_IS_CODE_VALID', payload: false });
     },
   });
 
   const handleButtonClick = () => {
-    if (step === 'enterPhone') {
-      sendVerificationCodeMutation.mutate(phoneNumber);
-    } else if (step === 'enterCode') {
-      setLogin(!isCodeValid);
-      verifyCodeMutation.mutate({ code: code.join(''), token });
+    if (state.step === 'enterPhone') {
+      sendVerificationCodeMutation.mutate(state.phoneNumber);
+    } else if (state.step === 'enterCode') {
+      verifyCodeMutation.mutate({ code: state.code.join(''), token: state.token });
     }
   };
 
-  const editFn = () => {
-    setStep('enterPhone');
-    setCode(['', '', '', '']);
+  const editPhoneNumber = () => {
+    dispatch({ type: 'SET_STEP', payload: 'enterPhone' });
+    dispatch({ type: 'RESET_CODE' });
   };
 
   useEffect(() => {
-    if (step === 'enterCode' && timer > 0) {
+    if (state.step === 'enterCode' && state.timer > 0) {
       const intervalId = setInterval(() => {
-        setTimer((prev) => prev - 1);
+        dispatch({ type: 'SET_TIMER', payload: state.timer - 1 });
       }, 1000);
       return () => clearInterval(intervalId);
     }
-    setTimer(59);
-  }, [step, timer]);
+    dispatch({ type: 'SET_TIMER', payload: 59 });
+  }, [state.step, state.timer]);
 
   useEffect(() => {
-    if (inputRefs.current[0].current && step === 'enterCode') {
+    if (inputRefs.current[0].current && state.step === 'enterCode') {
       inputRefs.current[0].current.focus();
     }
-  }, [step]);
+  }, [state.step]);
 
   return (
     <div
@@ -111,33 +130,33 @@ const Login = ({ isOpen, onClick, setLogin }) => {
           { 'scale-100': isOpen, 'scale-0': !isOpen },
         )}
       >
-        <Header step={step} onClick={onClick} />
+        <Header step={state.step} onClick={onClick} />
         <div className="p-5">
           <p className="text-sm text-[var(--clr-gray)] font-normal mb-4">
-            {step === 'enterCode'
+            {state.step === 'enterCode'
               ? 'Telefon raqamingizga yuborilgan kodni kiritish orqali telefon raqamingizni tasdiqlang'
               : 'Telefon raqamingizni kiriting va biz ushbu raqamga SMS orqali tasdiqlash kodini yuboramiz'}
           </p>
-          {step === 'enterCode' && (
+          {state.step === 'enterCode' && (
             <div className="flex items-center gap-2 mb-8">
-              <p>{phoneNumber}</p>
-              <div className="cursor-pointer" onClick={() => editFn()}>
+              <p>{state.phoneNumber}</p>
+              <div className="cursor-pointer" onClick={editPhoneNumber}>
                 <EditIcon />
               </div>
             </div>
           )}
           <div
             className={classNames('flex flex-col w-full gap-1', {
-              'mb-14': step !== 'enterCode',
-              'mb-3': step === 'enterCode',
+              'mb-14': state.step !== 'enterCode',
+              'mb-3': state.step === 'enterCode',
             })}
           >
             <label className="text-[var(--clr-gray)] text-sm" htmlFor="phone">
-              {step === 'enterCode' ? 'Tasdiqlash kodi' : 'Telefon raqami'}
+              {state.step === 'enterCode' ? 'Tasdiqlash kodi' : 'Telefon raqami'}
             </label>
-            {step === 'enterCode' ? (
+            {state.step === 'enterCode' ? (
               <div className="flex space-x-2 justify-center gap-4 mt-4">
-                {code.map((num, idx) => (
+                {state.code.map((num, idx) => (
                   <input
                     key={idx}
                     ref={inputRefs.current[idx]}
@@ -148,7 +167,7 @@ const Login = ({ isOpen, onClick, setLogin }) => {
                     onKeyDown={(e) => handleBackspace(e, idx)}
                     className={classNames(
                       'w-14 h-[60px] appearance-none border-2 bg-[var(--bg-body)] text-center text-lg rounded-lg focus:border-[var(--clr-yellow)] focus:outline-none transition-colors focus:bg-transparent',
-                      { 'border-[var(--error)]': step !== 'enterCode' && !isCodeValid },
+                      { 'border-[var(--error)]': !state.isCodeValid },
                     )}
                   />
                 ))}
@@ -156,7 +175,7 @@ const Login = ({ isOpen, onClick, setLogin }) => {
             ) : (
               <InputMask
                 mask="+\9\98 99 999 99 99"
-                value={phoneNumber}
+                value={state.phoneNumber}
                 onChange={handlePhoneChange}
                 maskChar=""
               >
@@ -173,9 +192,9 @@ const Login = ({ isOpen, onClick, setLogin }) => {
             )}
           </div>
           <Footer
-            step={step}
+            step={state.step}
             handleButtonClick={handleButtonClick}
-            timer={timer}
+            timer={state.timer}
             isDisabled={sendVerificationCodeMutation.isPending || verifyCodeMutation.isPending}
           />
         </div>
